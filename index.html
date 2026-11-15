@@ -12,6 +12,7 @@
     --text: #000; --page: #fff; --surface: #f7f7f7; --line: #ccc;
     --active: #e9e9e9; --link: #1858a1;
     font-family: Inter, "Microsoft YaHei", "PingFang SC", system-ui, sans-serif;
+    font-size: 112.5%;
     background: var(--page); color: var(--text);
   }
   *, *::before, *::after { box-sizing: border-box; }
@@ -31,7 +32,7 @@
   .back { font-size: .84rem; text-decoration: none; }
   .back:hover { text-decoration: underline; }
   .hero { padding: 2.4rem 0 1.45rem; }
-  .hero h1 { font-size: clamp(2rem, 4.8vw, 3.52rem); line-height: 1.13; letter-spacing: -.035em; margin: 0 0 .7rem; }
+  .hero h1 { font-size: clamp(2rem, 4.8vw + 2px, 3.52rem); line-height: 1.13; letter-spacing: -.035em; margin: 0 0 .7rem; }
   .hero p { max-width: 42rem; margin: 0; }
   .labs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .65rem; margin-bottom: 1rem; }
   .lab { min-width: 0; display: flex; align-items: center; gap: .64rem; padding: .62rem .8rem; text-align: left; background: var(--surface); }
@@ -54,14 +55,14 @@
   .graph .edge-positive { stroke: var(--text); }
   .graph .edge-negative { stroke: var(--text); stroke-dasharray: 8 4; }
   .graph .edge-zero { stroke: var(--text); stroke-dasharray: 2 4; }
-  .graph .edge-text { fill: var(--text); text-anchor: middle; font: 600 12px ui-monospace, monospace; paint-order: stroke; stroke: var(--surface); stroke-width: 5px; stroke-linejoin: round; }
+  .graph .edge-text { fill: var(--text); text-anchor: middle; font: 600 14px ui-monospace, monospace; paint-order: stroke; stroke: var(--surface); stroke-width: 5px; stroke-linejoin: round; }
   .graph .node { fill: var(--page); stroke: #666; stroke-width: 1.7; }
   .graph .node-active { stroke: var(--text); stroke-width: 2.6; }
   .graph .node-select { cursor: pointer; }
   .graph .node-select:hover .node { fill: var(--active); }
-  .graph .node-name { fill: var(--text); text-anchor: middle; font-size: 12px; }
-  .graph .node-value { fill: var(--text); text-anchor: middle; font: 700 18px ui-monospace, monospace; }
-  .graph .column-name { fill: var(--text); text-anchor: middle; font-size: 13px; }
+  .graph .node-name { fill: var(--text); text-anchor: middle; font-size: 14px; }
+  .graph .node-value { fill: var(--text); text-anchor: middle; font: 700 20px ui-monospace, monospace; }
+  .graph .column-name { fill: var(--text); text-anchor: middle; font-size: 15px; }
   .graph-note { font-size: .82rem; }
   .neurons { display: flex; flex-wrap: wrap; align-items: center; gap: .42rem; margin: .7rem 0 .8rem; }
   .neurons button { min-width: 44px; min-height: 39px; padding: .36rem .55rem; }
@@ -176,7 +177,7 @@
 </main>
 <footer class="wrap footer">
   <span><span data-en="Neural Network Lab">神经网络搭建实验室</span></span>
-  <span><span data-en="Last updated">最后更新</span> <time datetime="2026-11-15">2026-11-15</time></span>
+  <span><span data-en="Last updated">最后更新</span> <time datetime="2026-11-16">2026-11-16</time></span>
 </footer>
 <script>
   'use strict';
