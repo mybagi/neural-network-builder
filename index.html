@@ -116,68 +116,153 @@
     .mark { width: 31px; height: 31px; }
     .back { font-size: .77rem; }
   }
+  .game-nav { display: flex; align-items: center; justify-content: flex-end; flex-wrap: wrap; gap: .35rem .75rem; }
+  .game-nav .language { min-height: 36px; padding: .2rem .52rem; font-size: .82rem; }
 </style>
 </head>
 <body>
 <header class="top">
   <div class="wrap top-inner">
-    <div class="brand"><span class="mark" aria-hidden="true">NN</span>神经网络搭建实验室</div>
-    <a class="back" href="https://mybian.cn/funzone">← 返回互动区</a>
+    <div class="brand"><span class="mark" aria-hidden="true">NN</span><span data-en="Neural Network Lab">神经网络搭建实验室</span></div>
+    <div class="game-nav"><a class="back" href="https://mybian.cn/funzone"><span data-en="← Fun Zone">← 返回互动区</span></a><button class="language" type="button" aria-label="Switch to English">EN</button></div>
   </div>
 </header>
 <main class="wrap">
   <div class="hero">
-    <h1>搭出一张神经网络</h1>
-    <p>亲手接线，调整权重和偏置，再观察激活函数怎样改变输出。让同一张网络通过这一关的所有样本。</p>
+    <h1><span data-en="Build a neural network">搭出一张神经网络</span></h1>
+    <p><span data-en="Connect neurons, adjust weights and biases, and watch how activation changes the output. Build one network that passes every sample.">亲手接线，调整权重和偏置，再观察激活函数怎样改变输出。让同一张网络通过这一关的所有样本。</span></p>
   </div>
-  <nav class="labs" id="levels" aria-label="选择实验"></nav>
+  <nav class="labs" id="levels" aria-label="选择实验" data-en-label="Choose a challenge"></nav>
   <div class="main-grid">
     <section class="card" aria-labelledby="goal-title">
       <div class="board-head">
         <div><h2 id="goal-title"></h2><p id="goal" class="subtle"></p></div>
-        <output id="score" class="badge" aria-label="已符合目标的样本数"></output>
+        <output id="score" class="badge" aria-label="已符合目标的样本数" data-en-label="Number of samples that match the target"></output>
       </div>
       <div class="architecture" id="architecture">
         <button type="button" id="layer-toggle"></button>
-        <button type="button" id="add-node">添加神经元</button>
-        <button type="button" id="remove-node">删除选中神经元</button>
+        <button type="button" id="add-node"><span data-en="Add neuron">添加神经元</span></button>
+        <button type="button" id="remove-node"><span data-en="Remove selected neuron">删除选中神经元</span></button>
       </div>
       <svg id="graph" class="graph" viewBox="0 0 550 252" aria-hidden="true"></svg>
-      <p class="graph-note">节点上的数字是所选样本的输出。黑色实线表示正权重，黑色虚线表示负权重，黑色点线表示零权重，灰色虚线表示未接通。</p>
+      <p class="graph-note"><span data-en="Node values are outputs for the selected sample. Solid black lines show positive weights, dashed black lines show negative weights, dotted black lines show zero weights, and gray dashes show disconnected inputs.">节点上的数字是所选样本的输出。黑色实线表示正权重，黑色虚线表示负权重，黑色点线表示零权重，灰色虚线表示未接通。</span></p>
     </section>
     <section class="card" aria-labelledby="inspector-title">
-      <h2 id="inspector-title">调校神经元</h2>
-      <p class="subtle">选中一个神经元，再接通来自上一层的输入。</p>
-      <div id="neurons" class="neurons" role="group" aria-label="选中神经元"></div>
+      <h2 id="inspector-title"><span data-en="Configure a neuron">调校神经元</span></h2>
+      <p class="subtle"><span data-en="Select a neuron, then connect inputs from the previous layer.">选中一个神经元，再接通来自上一层的输入。</span></p>
+      <div id="neurons" class="neurons" role="group" aria-label="选中神经元" data-en-label="Select a neuron"></div>
       <div id="inspector"></div>
-      <div id="equation" class="equation" aria-label="选中神经元的计算"></div>
+      <div id="equation" class="equation" aria-label="选中神经元的计算" data-en-label="Calculation for the selected neuron"></div>
     </section>
   </div>
   <div class="lower">
     <section class="card" aria-labelledby="samples-title">
-      <h2 id="samples-title">测试样本</h2>
-      <p class="subtle">点选输入，查看它在网络中的传播过程。</p>
+      <h2 id="samples-title"><span data-en="Test samples">测试样本</span></h2>
+      <p class="subtle"><span data-en="Select an input to trace it through the network.">点选输入，查看它在网络中的传播过程。</span></p>
       <table class="samples" id="samples"></table>
     </section>
     <section class="card" aria-labelledby="check-title">
-      <h2 id="check-title">检验网络</h2>
-      <p id="feedback" class="feedback subtle" role="status" aria-live="polite">先接通输入，再调整网络。</p>
+      <h2 id="check-title"><span data-en="Test the network">检验网络</span></h2>
+      <p id="feedback" class="feedback subtle" role="status" aria-live="polite"><span data-en="Connect the inputs, then adjust the network.">先接通输入，再调整网络。</span></p>
       <p id="hint" class="hint" aria-live="polite"></p>
       <div class="actions">
-        <button type="button" id="check" class="primary">检查全部样本</button>
-        <button type="button" id="hint-button">提示</button>
-        <button type="button" id="reset">重置当前关</button>
-        <button type="button" id="next" hidden>下一关 →</button>
+        <button type="button" id="check" class="primary"><span data-en="Check all samples">检查全部样本</span></button>
+        <button type="button" id="hint-button"><span data-en="Hint">提示</span></button>
+        <button type="button" id="reset"><span data-en="Reset challenge">重置当前关</span></button>
+        <button type="button" id="next" hidden><span data-en="Next challenge →">下一关 →</span></button>
       </div>
     </section>
   </div>
 </main>
 <footer class="wrap footer">
-  <span>神经网络搭建实验室</span>
-  <span>最后更新 <time datetime="2026-11-15">2026-11-15</time></span>
+  <span><span data-en="Neural Network Lab">神经网络搭建实验室</span></span>
+  <span><span data-en="Last updated">最后更新</span> <time datetime="2026-11-15">2026-11-15</time></span>
 </footer>
 <script>
   'use strict';
+
+  let gameLanguage = 'zh';
+  try {
+    if (localStorage.getItem('mybian-language') === 'en') gameLanguage = 'en';
+  } catch {}
+  const t = (zh, en) => gameLanguage === 'en' ? en : zh;
+  const words = {
+    "神经网络搭建实验室": "Neural Network Lab",
+    "先接通输入，再调整网络。": "Connect the inputs, then adjust the network.",
+    "提示": "Hint",
+    "或门": "OR gate",
+    "让两个开关控制一个输出": "Control one output with two switches",
+    "只要至少一个输入为 1，输出就应是 1。": "Output 1 whenever either input is 1.",
+    "选中输出 y，接通 x₁ 和 x₂。先把两条连接的权重都设为 1。": "Select output y and connect x₁ and x₂. Start with a weight of 1 on both connections.",
+    "阶跃函数在 z ≥ 0 时输出 1。两个输入都为 0 时，z 等于偏置，偏置需要是负数。": "The step function outputs 1 when z ≥ 0. If both inputs are zero, z equals the bias, so the bias needs to be negative.",
+    "试试两条权重都为 1，偏置为 −0.5，输出使用阶跃函数。": "Try weights of 1 on both connections, a bias of −0.5, and a step activation at the output.",
+    "异或门": "XOR gate",
+    "用隐藏层识别不同的输入": "Use a hidden layer to detect different inputs",
+    "两个输入恰好有一个为 1 时输出 1；相同时输出 0。": "Output 1 when exactly one input is 1, and 0 when both inputs are the same.",
+    "一个直接接收 x₁ 和 x₂ 的阶跃神经元只能用一条直线划分输入平面。加入一个有两个神经元的隐藏层。": "A single step neuron connected to x₁ and x₂ can divide the input space with only one straight line. Add a hidden layer with two neurons.",
+    "分别用两个 ReLU 神经元计算 max(0, x₁−x₂) 和 max(0, x₂−x₁)。它们的偏置都设为 0。": "Use two ReLU neurons to compute max(0, x₁−x₂) and max(0, x₂−x₁), with both biases set to zero.",
+    "把两个隐藏神经元都用权重 1 接到输出 y。输出用阶跃函数，偏置设为 −0.5。": "Connect both hidden neurons to output y with weights of 1. Use a step activation and a bias of −0.5 at the output.",
+    "信号限幅": "Signal clipping",
+    "把连续信号限制在 0 到 1": "Clamp a continuous signal to the range 0 to 1",
+    "负数变成 0，大于 1 的数变成 1，中间的数保持原值。": "Map negative values to 0, values above 1 to 1, and leave values between them unchanged.",
+    "ReLU 在输入为负时输出 0。先用一个 ReLU 神经元让信号从 0 开始上升。": "ReLU outputs 0 for negative inputs. Use one ReLU neuron to make the signal rise from zero.",
+    "用第二个 ReLU 神经元为信号制造另一个转折点。把它的偏置设为 −1，让它从 x₁ = 1 开始上升。": "Use a second ReLU neuron to introduce another bend. Set its bias to −1 so it starts rising at x₁ = 1.",
+    "线性输出 y 连接这两个 ReLU 神经元，权重分别为 1 和 −1，偏置为 0。两段斜坡相减，输出就会在 1 处停住。": "Connect the two ReLU neurons to a linear output y with weights 1 and −1 and a bias of zero. Subtracting the second rising segment makes the output level off at 1.",
+    "阶跃": "Step",
+    "线性": "Linear",
+    "z ≥ 0 时为 1，否则为 0": "1 when z ≥ 0, otherwise 0",
+    "保持 z 不变": "Leaves z unchanged",
+    "已完成": "Complete",
+    "移除隐藏层": "Remove hidden layer",
+    "加入隐藏层": "Add hidden layer",
+    "输出 y": "Output y",
+    "激活函数": "Activation",
+    "偏置 b": "Bias b",
+    "输入连接与权重": "Input connections and weights",
+    "输入": "Input",
+    "目标": "Target",
+    "实际输出": "Output",
+    "结果": "Result",
+    "符合": "Pass",
+    "未符合": "Miss",
+    "先加权求和，加上偏置，再做激活。": "Sum the weighted inputs, add the bias, and apply the activation function.",
+    "输入层": "Input",
+    "输出层": "Output",
+    "隐藏层": "Hidden",
+    "网络已调整。检查全部样本，看看哪些输入还需要修正。": "Network updated. Check all samples to see which outputs still need work.",
+    "已移除隐藏层。现在可以把输入直接接到输出。": "Hidden layer removed. You can now wire inputs directly to the output.",
+    "已加入隐藏层。输出现在接收隐藏层的信号，请重新接线。": "Hidden layer added. Wire its neurons to the output.",
+    "下一条提示": "Next hint",
+    "已显示全部提示": "All hints shown",
+    "已恢复本关的初始网络。": "The starting network has been restored."
+  };
+  const label = zh => t(zh, words[zh] ?? zh);
+  const staticText = Array.from(document.querySelectorAll('[data-en]'), element => [element, element.textContent]);
+  const description = document.querySelector('meta[name=description]');
+  const chineseDescription = description.content;
+  const staticLabels = Array.from(document.querySelectorAll('[data-en-label]'), element => [element, element.getAttribute('aria-label')]);
+  const languageButton = document.querySelector('.game-nav .language');
+
+  function renderLanguage() {
+    document.documentElement.lang = t('zh-CN', 'en');
+    description.content = t(chineseDescription, "Build and test a neural network by wiring neurons, setting weights, and choosing activation functions.");
+    document.title = label('神经网络搭建实验室');
+    for (const [element, zh] of staticText) element.textContent = t(zh, element.dataset.en);
+    for (const [element, zh] of staticLabels) element.setAttribute('aria-label', t(zh, element.dataset.enLabel));
+    languageButton.textContent = t('EN', '中文');
+    languageButton.setAttribute('aria-label', t('Switch to English', '切换到中文'));
+  }
+
+  function onLanguageChange(redraw) {
+    languageButton.addEventListener('click', () => {
+      gameLanguage = t('en', 'zh');
+      try { localStorage.setItem('mybian-language', gameLanguage); } catch {}
+      renderLanguage();
+      redraw();
+    });
+    renderLanguage();
+  }
+
 
   const inputNames = ['x₁', 'x₂'];
   const labs = [
@@ -215,6 +300,7 @@
   let selected;
   let sampleIndex;
   let hintIndex;
+  let feedbackText;
   let completed = new Set();
   try {
     const stored = JSON.parse(localStorage.getItem('mybian-neural-lab-progress') || '[]');
@@ -250,7 +336,8 @@
 
   function feedback(message, style = 'subtle') {
     const element = $('feedback');
-    if (element.textContent !== message) element.textContent = message;
+    feedbackText = message;
+    element.textContent = message();
     element.className = `feedback ${style}`;
   }
 
@@ -261,12 +348,12 @@
     sampleIndex = 0;
     hintIndex = 0;
     $('hint').textContent = '';
-    $('hint-button').textContent = '提示';
+    $('hint-button').textContent = label('提示');
     $('hint-button').removeAttribute('aria-disabled');
     $('next').hidden = true;
-    $('goal-title').textContent = lab().title;
-    $('goal').textContent = lab().goal;
-    feedback('先接通输入，再调整网络。');
+    $('goal-title').textContent = label(lab().title);
+    $('goal').textContent = label(lab().goal);
+    feedback(() => label('先接通输入，再调整网络。'));
     renderLevels();
     renderEditor();
     renderResults();
@@ -276,39 +363,39 @@
   function renderLevels() {
     $('levels').innerHTML = labs.map((item, index) => `
       <button type="button" class="lab" data-level="${index}" aria-pressed="${index === level}">
-        <span class="lab-number" aria-hidden="true">0${index + 1}</span><span class="lab-name">${item.name}</span>
-        ${completed.has(index) ? '<span class="lab-done" aria-label="已完成">✓</span>' : ''}
+        <span class="lab-number" aria-hidden="true">0${index + 1}</span><span class="lab-name">${label(item.name)}</span>
+        ${completed.has(index) ? `<span class="lab-done" aria-label="${label('已完成')}">✓</span>` : ''}
       </button>`).join('');
   }
 
   function renderEditor() {
     const hidden = network.hidden.length > 0;
-    $('layer-toggle').textContent = hidden ? '移除隐藏层' : '加入隐藏层';
+    $('layer-toggle').textContent = hidden ? label('移除隐藏层') : label('加入隐藏层');
     $('add-node').hidden = $('remove-node').hidden = !hidden;
     $('add-node').disabled = network.hidden.length >= 4;
     $('remove-node').disabled = selected === 'y' || network.hidden.length === 1;
     $('neurons').innerHTML = [...network.hidden, network.output].map(item => `
       <button type="button" data-neuron="${item.id}" aria-pressed="${item.id === selected}">
-        ${item.id === 'y' ? '输出 y' : item.id}
+        ${item.id === 'y' ? label('输出 y') : item.id}
       </button>`).join('');
     const node = nodeById(selected);
     $('inspector').innerHTML = `
       <div class="control-grid">
-        <label class="control-label"><span>激活函数</span><select id="activation">
-          ${Object.entries(activationNames).map(([key, name]) => `<option value="${key}"${key === node.activation ? ' selected' : ''}>${name}</option>`).join('')}
+        <label class="control-label"><span>${label('激活函数')}</span><select id="activation">
+          ${Object.entries(activationNames).map(([key, name]) => `<option value="${key}"${key === node.activation ? ' selected' : ''}>${label(name)}</option>`).join('')}
         </select></label>
-        <label class="control-label"><span>偏置 b</span><span class="slider-line">
-          <input id="bias" type="range" min="-3" max="3" step="0.5" value="${node.bias}" aria-label="${node.id} 的偏置">
+        <label class="control-label"><span>${label('偏置 b')}</span><span class="slider-line">
+          <input id="bias" type="range" min="-3" max="3" step="0.5" value="${node.bias}" aria-label="${t(`${node.id} 的偏置`, `Bias for ${node.id}`)}">
           <output class="slider-value" for="bias">${rounded(node.bias)}</output>
         </span></label>
       </div>
-      <fieldset><legend>输入连接与权重</legend>
+      <fieldset><legend>${label('输入连接与权重')}</legend>
         ${sources(node).map((source, index) => {
           const connected = isConnected(node, source);
           return `<div class="edge-row">
-            <label class="edge-switch"><input type="checkbox" data-wire="${source}" aria-label="连接 ${source} 到 ${node.id}"${connected ? ' checked' : ''}>${source} → ${node.id}</label>
+            <label class="edge-switch"><input type="checkbox" data-wire="${source}" aria-label="${t(`连接 ${source} 到 ${node.id}`, `Connect ${source} to ${node.id}`)}"${connected ? ' checked' : ''}>${source} → ${node.id}</label>
             <div class="slider-line">
-              <input id="weight-${index}" type="range" min="-3" max="3" step="0.5" value="${node.weights[source] ?? 1}" data-weight="${source}" aria-label="${source} 到 ${node.id} 的权重"${connected ? '' : ' disabled'}>
+              <input id="weight-${index}" type="range" min="-3" max="3" step="0.5" value="${node.weights[source] ?? 1}" data-weight="${source}" aria-label="${t(`${source} 到 ${node.id} 的权重`, `Weight from ${source} to ${node.id}`)}"${connected ? '' : ' disabled'}>
               <output class="slider-value" for="weight-${index}">${connected ? rounded(node.weights[source]) : '—'}</output>
             </div>
           </div>`;
@@ -319,18 +406,18 @@
   function renderResults() {
     const results = lab().samples.map(evaluate);
     const passCount = results.filter(result => result.correct).length;
-    $('score').textContent = `${passCount} / ${results.length} 样本符合`;
+    $('score').textContent = `${passCount} / ${results.length} ${t('样本符合', 'samples passed')}`;
     renderGraph(results[sampleIndex]);
     renderEquation(results[sampleIndex]);
     const currentFocus = document.activeElement.dataset.sample;
-    $('samples').innerHTML = `<thead><tr><th scope="col">输入</th><th scope="col">目标</th><th scope="col">实际输出</th><th scope="col">结果</th></tr></thead>
+    $('samples').innerHTML = `<thead><tr><th scope="col">${label('输入')}</th><th scope="col">${label('目标')}</th><th scope="col">${label('实际输出')}</th><th scope="col">${label('结果')}</th></tr></thead>
       <tbody>${lab().samples.map((sample, index) => {
         const result = results[index];
         const active = index === sampleIndex;
         return `<tr${active ? ' class="chosen"' : ''}>
-          <th scope="row"><button type="button" class="sample-button" data-sample="${index}" aria-label="查看输入 ${sample.slice(0, -1).join('、')}" aria-pressed="${active}">${sample.slice(0, -1).map(rounded).join('，')}</button></th>
+          <th scope="row"><button type="button" class="sample-button" data-sample="${index}" aria-label="${t("查看输入", "View input")} ${sample.slice(0, -1).join(", ")}" aria-pressed="${active}">${sample.slice(0, -1).map(rounded).join(t('，', ', '))}</button></th>
           <td>${rounded(result.target)}</td><td>${rounded(result.values.y)}</td>
-          <td class="${result.correct ? 'correct' : 'incorrect'}">${result.correct ? '符合' : '未符合'}</td>
+          <td class="${result.correct ? 'correct' : 'incorrect'}">${result.correct ? label('符合') : label('未符合')}</td>
         </tr>`;
       }).join('')}</tbody>`;
     if (currentFocus !== undefined) $('samples').querySelector(`[data-sample="${currentFocus}"]`)?.focus();
@@ -341,10 +428,10 @@
     const trace = result.traces[selected];
     const terms = trace.terms.map(term => `${rounded(term.value)} × (${rounded(term.weight)})`);
     const total = [...terms, `(${rounded(node.bias)})`].join(' + ');
-    $('equation').innerHTML = `<span>先加权求和，加上偏置，再做激活。</span>
+    $('equation').innerHTML = `<span>${label('先加权求和，加上偏置，再做激活。')}</span>
       <code>z = ${total} = ${rounded(trace.sum)}</code>
-      <code>${node.id} = ${activationNames[node.activation]}(${rounded(trace.sum)}) = ${rounded(result.values[node.id])}</code>
-      <span class="subtle">${activationRules[node.activation]}</span>`;
+      <code>${node.id} = ${label(activationNames[node.activation])}(${rounded(trace.sum)}) = ${rounded(result.values[node.id])}</code>
+      <span class="subtle">${label(activationRules[node.activation])}</span>`;
   }
 
   function renderGraph(result) {
@@ -361,7 +448,7 @@
         y: 140 + (row - (group.length - 1) / 2) * Math.min(75, 154 / Math.max(1, group.length - 1)) };
     }));
     const layerLabels = groups.map((group, index) => `<text class="column-name" x="${positions[group[0]].x}" y="27">
-      ${index === 0 ? '输入层' : index === groups.length - 1 ? '输出层' : '隐藏层'}
+      ${index === 0 ? label('输入层') : index === groups.length - 1 ? label('输出层') : label('隐藏层')}
     </text>`).join('');
     const edges = [];
     for (const node of [...network.hidden, network.output]) {
@@ -396,7 +483,7 @@
 
   function networkChanged() {
     $('next').hidden = true;
-    feedback('网络已调整。检查全部样本，看看哪些输入还需要修正。');
+    feedback(() => label('网络已调整。检查全部样本，看看哪些输入还需要修正。'));
     renderResults();
   }
 
@@ -448,7 +535,7 @@
     selected = present ? 'y' : network.hidden[0].id;
     renderEditor();
     networkChanged();
-    feedback(present ? '已移除隐藏层。现在可以把输入直接接到输出。' : '已加入隐藏层。输出现在接收隐藏层的信号，请重新接线。');
+    feedback(() => label(present ? '已移除隐藏层。现在可以把输入直接接到输出。' : '已加入隐藏层。输出现在接收隐藏层的信号，请重新接线。'));
   });
   $('add-node').addEventListener('click', () => {
     const node = neuron(`h${network.nextNode++}`, 'relu');
@@ -474,7 +561,8 @@
       sampleIndex = failure;
       renderResults();
       const result = results[failure];
-      feedback(`先看第 ${failure + 1} 个样本：目标是 ${rounded(result.target)}，你的输出是 ${rounded(result.values.y)}。选中相应神经元检查计算。`, 'incorrect');
+      feedback(() => t(`先看第 ${failure + 1} 个样本：目标是 ${rounded(result.target)}，你的输出是 ${rounded(result.values.y)}。选中相应神经元检查计算。`,
+        `Sample ${failure + 1} targets ${rounded(result.target)}. Your output is ${rounded(result.values.y)}. Select a neuron to inspect its calculation.`), 'incorrect');
       return;
     }
     completed.add(level);
@@ -482,21 +570,32 @@
     renderLevels();
     const final = level === labs.length - 1;
     $('next').hidden = final;
-    feedback(final ? `这一关的 ${results.length} 个样本全部通过。你已完成信号限幅挑战。`
-      : `这一关的 ${results.length} 个样本全部通过。可以进入下一关。`, 'correct');
+    feedback(() => final
+      ? t(`这一关的 ${results.length} 个样本全部通过。你已完成信号限幅挑战。`, `All ${results.length} samples passed. Signal clipping complete!`)
+      : t(`这一关的 ${results.length} 个样本全部通过。可以进入下一关。`, `All ${results.length} samples passed. Go to the next challenge.`), 'correct');
   });
   $('hint-button').addEventListener('click', () => {
     if (hintIndex === lab().hints.length) return;
-    $('hint').textContent = lab().hints[hintIndex++];
-    $('hint-button').textContent = hintIndex < lab().hints.length ? '下一条提示' : '已显示全部提示';
+    $('hint').textContent = label(lab().hints[hintIndex++]);
+    $('hint-button').textContent = hintIndex < lab().hints.length ? label('下一条提示') : label('已显示全部提示');
     if (hintIndex === lab().hints.length) $('hint-button').setAttribute('aria-disabled', 'true');
   });
   $('next').addEventListener('click', () => loadLevel(level + 1, true));
   $('reset').addEventListener('click', () => {
     loadLevel(level);
-    feedback('已恢复本关的初始网络。');
+    feedback(() => label('已恢复本关的初始网络。'));
   });
 
+  onLanguageChange(() => {
+    $('goal-title').textContent = label(lab().title);
+    $('goal').textContent = label(lab().goal);
+    if (hintIndex) $('hint').textContent = label(lab().hints[hintIndex - 1]);
+    $('hint-button').textContent = label(!hintIndex ? '提示' : hintIndex < lab().hints.length ? '下一条提示' : '已显示全部提示');
+    $('feedback').textContent = feedbackText();
+    renderLevels();
+    renderEditor();
+    renderResults();
+  });
   loadLevel(0);
 </script>
 </body>
