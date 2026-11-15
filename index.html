@@ -118,14 +118,21 @@
     .back { font-size: .77rem; }
   }
   .game-nav { display: flex; align-items: center; justify-content: flex-end; flex-wrap: wrap; gap: .35rem .75rem; }
-  .game-nav .language { min-height: 36px; padding: .2rem .52rem; font-size: .82rem; }
+  .game-nav .language { min-height: 36px; width: auto; padding: .2rem .52rem; font-size: .82rem; cursor: pointer; }
 </style>
 </head>
 <body>
 <header class="top">
   <div class="wrap top-inner">
     <div class="brand"><span class="mark" aria-hidden="true">NN</span><span data-en="Neural Network Lab">神经网络搭建实验室</span></div>
-    <div class="game-nav"><a class="back" href="https://mybian.cn/funzone"><span data-en="← Fun Zone">← 返回互动区</span></a><button class="language" type="button" aria-label="Switch to English">EN</button></div>
+    <div class="game-nav">
+      <a class="back" href="https://mybian.cn/funzone"><span data-en="← Fun Zone">← 返回互动区</span></a>
+      <select class="language" aria-label="选择语言">
+        <option value="en" lang="en">English</option>
+        <option value="zh" lang="zh-CN" selected>简体中文</option>
+        <option value="zh-Hant" lang="zh-Hant">繁體中文</option>
+      </select>
+    </div>
   </div>
 </header>
 <main class="wrap">
@@ -179,14 +186,14 @@
   <span><span data-en="Neural Network Lab">神经网络搭建实验室</span></span>
   <span><span data-en="Last updated">最后更新</span> <time datetime="2026-11-16">2026-11-16</time></span>
 </footer>
+<script src="./vendor/opencc-cn2t.js"></script>
+<script src="./locale.js"></script>
 <script>
   'use strict';
 
-  let gameLanguage = 'zh';
-  try {
-    if (localStorage.getItem('mybian-language') === 'en') gameLanguage = 'en';
-  } catch {}
-  const t = (zh, en) => gameLanguage === 'en' ? en : zh;
+  const locale = window.siteLocale;
+  let gameLanguage = locale.read('zh');
+  const t = (zh, en) => locale.text(gameLanguage, zh, en);
   const words = {
     "神经网络搭建实验室": "Neural Network Lab",
     "先接通输入，再调整网络。": "Connect the inputs, then adjust the network.",
@@ -242,22 +249,20 @@
   const description = document.querySelector('meta[name=description]');
   const chineseDescription = description.content;
   const staticLabels = Array.from(document.querySelectorAll('[data-en-label]'), element => [element, element.getAttribute('aria-label')]);
-  const languageButton = document.querySelector('.game-nav .language');
+  const languageSelect = document.querySelector('.game-nav .language');
 
   function renderLanguage() {
-    document.documentElement.lang = t('zh-CN', 'en');
+    locale.apply(languageSelect, gameLanguage);
     description.content = t(chineseDescription, "Build and test a neural network by wiring neurons, setting weights, and choosing activation functions.");
     document.title = label('神经网络搭建实验室');
     for (const [element, zh] of staticText) element.textContent = t(zh, element.dataset.en);
     for (const [element, zh] of staticLabels) element.setAttribute('aria-label', t(zh, element.dataset.enLabel));
-    languageButton.textContent = t('EN', '中文');
-    languageButton.setAttribute('aria-label', t('Switch to English', '切换到中文'));
   }
 
   function onLanguageChange(redraw) {
-    languageButton.addEventListener('click', () => {
-      gameLanguage = t('en', 'zh');
-      try { localStorage.setItem('mybian-language', gameLanguage); } catch {}
+    languageSelect.addEventListener('change', () => {
+      gameLanguage = languageSelect.value;
+      locale.save(gameLanguage);
       renderLanguage();
       redraw();
     });
