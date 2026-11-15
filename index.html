@@ -3,102 +3,100 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#0b1323">
+<meta name="theme-color" content="#fff">
 <meta name="description" content="从连接、权重和偏置开始，用三个小实验亲手搭建神经网络。">
 <title>神经网络搭建实验室</title>
 <style>
   :root {
-    color-scheme: dark;
-    --page: #0b1323; --panel: #121e31; --deep: #0d182b; --line: #344762;
-    --text: #edf5ff; --muted: #aabbd1; --accent: #85e8f2; --accent-ink: #052832;
-    --aqua: #b0efdf; --amber: #ffd196; --blue: #a9c9ff;
+    color-scheme: light;
+    --text: #000; --page: #fff; --surface: #f7f7f7; --line: #ccc;
+    --active: #e9e9e9; --link: #1858a1;
     font-family: Inter, "Microsoft YaHei", "PingFang SC", system-ui, sans-serif;
     background: var(--page); color: var(--text);
   }
   *, *::before, *::after { box-sizing: border-box; }
   body { margin: 0; min-width: 0; font-size: 1rem; line-height: 1.55; }
-  a { color: var(--accent); text-underline-offset: .18em; }
+  a { color: var(--link); text-underline-offset: .18em; }
   button, input, select { font: inherit; }
-  button, select { color: inherit; border: 1px solid var(--line); background: var(--deep); border-radius: .55rem; }
+  button, select { color: inherit; border: 1px solid var(--line); background: var(--surface); border-radius: .55rem; }
   button { cursor: pointer; min-height: 42px; padding: .46rem .74rem; }
-  button:not(:disabled):not([aria-disabled="true"]):hover { border-color: var(--accent); }
+  button:not(:disabled):not([aria-disabled="true"]):hover { border-color: var(--text); }
   button:disabled, button[aria-disabled="true"] { opacity: .47; cursor: default; }
-  :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+  :focus-visible { outline: 2px solid currentColor; outline-offset: 3px; }
   .wrap { width: min(1150px, calc(100% - 3rem)); margin-inline: auto; }
-  .top { background: #0c1627; border-bottom: 1px solid #293a55; }
+  .top { border-bottom: 1px solid var(--line); }
   .top-inner { min-height: 68px; display: flex; gap: .75rem; align-items: center; justify-content: space-between; }
   .brand { display: inline-flex; gap: .68rem; align-items: center; font-size: .92rem; font-weight: 700; }
-  .mark { display: grid; place-items: center; width: 38px; height: 38px; border-radius: .65rem; background: #173d50; color: var(--accent); font: 700 1rem/1 ui-monospace, monospace; }
+  .mark { display: grid; place-items: center; width: 38px; height: 38px; border-radius: .65rem; background: var(--active); font: 700 1rem/1 ui-monospace, monospace; }
   .back { font-size: .84rem; text-decoration: none; }
   .back:hover { text-decoration: underline; }
   .hero { padding: 2.4rem 0 1.45rem; }
   .hero h1 { font-size: clamp(2rem, 4.8vw, 3.52rem); line-height: 1.13; letter-spacing: -.035em; margin: 0 0 .7rem; }
-  .hero p { color: var(--muted); max-width: 42rem; margin: 0; }
+  .hero p { max-width: 42rem; margin: 0; }
   .labs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .65rem; margin-bottom: 1rem; }
-  .lab { min-width: 0; display: flex; align-items: center; gap: .64rem; padding: .62rem .8rem; text-align: left; background: #101b2e; }
-  .lab[aria-pressed="true"] { border-color: #57afc3; background: #173247; color: #e8fcff; }
-  .lab-number { flex: none; color: var(--accent); font: 600 .86rem ui-monospace, monospace; }
+  .lab { min-width: 0; display: flex; align-items: center; gap: .64rem; padding: .62rem .8rem; text-align: left; background: var(--surface); }
+  .lab[aria-pressed="true"] { border-color: var(--text); background: var(--active); font-weight: 700; }
+  .lab-number { flex: none; font: 600 .86rem ui-monospace, monospace; }
   .lab-name { min-width: 0; overflow-wrap: anywhere; }
-  .lab-done { margin-inline-start: auto; color: var(--aqua); font-weight: 700; }
+  .lab-done { margin-inline-start: auto; font-weight: 700; }
   .main-grid { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); gap: 1rem; align-items: start; }
-  .card { min-width: 0; border: 1px solid var(--line); border-radius: .92rem; background: var(--panel); padding: 1rem; }
+  .card { min-width: 0; border: 1px solid var(--line); border-radius: .92rem; background: var(--page); padding: 1rem; }
   .card h2 { margin: 0; font-size: 1.15rem; line-height: 1.3; }
   .card p { margin: .4rem 0 0; }
-  .subtle { color: var(--muted); font-size: .88rem; }
+  .subtle { font-size: .88rem; }
   .board-head { display: flex; flex-wrap: wrap; align-items: start; justify-content: space-between; gap: .56rem; }
-  .badge { display: inline-block; background: #183650; color: #b9dafa; border-radius: .44rem; font-size: .83rem; padding: .2rem .46rem; font-variant-numeric: tabular-nums; }
+  .badge { display: inline-block; background: var(--active); font-weight: 700; border-radius: .44rem; font-size: .83rem; padding: .2rem .46rem; font-variant-numeric: tabular-nums; }
   .architecture { display: flex; flex-wrap: wrap; gap: .45rem; margin: .9rem 0 .72rem; }
-  .architecture button { background: #172a40; font-size: .88rem; }
-  .graph { display: block; width: 100%; height: auto; aspect-ratio: 550 / 252; border: 1px solid #2f425f; border-radius: .68rem; background: radial-gradient(circle at 48% 45%, #172839, #0c192a 74%); }
-  .graph .guide { stroke: #34465c; fill: none; stroke-width: 1; stroke-dasharray: 3 6; }
+  .architecture button { background: var(--surface); font-size: .88rem; }
+  .graph { display: block; width: 100%; height: auto; aspect-ratio: 550 / 252; border: 1px solid var(--line); border-radius: .68rem; background: var(--surface); }
+  .graph .guide { stroke: #aaa; fill: none; stroke-width: 1; stroke-dasharray: 3 6; }
   .graph .edge { fill: none; stroke-width: 2; }
-  .graph .edge-positive { stroke: #6acdd7; }
-  .graph .edge-negative { stroke: #edbc81; }
-  .graph .edge-zero { stroke: #a1b1c9; }
-  .graph .edge-text { fill: #e0edf9; text-anchor: middle; font: 600 12px ui-monospace, monospace; paint-order: stroke; stroke: #0e1a29; stroke-width: 5px; stroke-linejoin: round; }
-  .graph .node { fill: #142a44; stroke: #7594b9; stroke-width: 1.7; }
-  .graph .node-active { stroke: #aff7ff; stroke-width: 2.6; }
+  .graph .edge-positive { stroke: var(--text); }
+  .graph .edge-negative { stroke: var(--text); stroke-dasharray: 8 4; }
+  .graph .edge-zero { stroke: var(--text); stroke-dasharray: 2 4; }
+  .graph .edge-text { fill: var(--text); text-anchor: middle; font: 600 12px ui-monospace, monospace; paint-order: stroke; stroke: var(--surface); stroke-width: 5px; stroke-linejoin: round; }
+  .graph .node { fill: var(--page); stroke: #666; stroke-width: 1.7; }
+  .graph .node-active { stroke: var(--text); stroke-width: 2.6; }
   .graph .node-select { cursor: pointer; }
-  .graph .node-select:hover .node { fill: #194053; }
-  .graph .node-name { fill: #e7f5ff; text-anchor: middle; font-size: 12px; }
-  .graph .node-value { fill: #fff; text-anchor: middle; font: 700 18px ui-monospace, monospace; }
-  .graph .column-name { fill: #aebed1; text-anchor: middle; font-size: 13px; }
-  .graph-note { font-size: .82rem; color: var(--muted); }
+  .graph .node-select:hover .node { fill: var(--active); }
+  .graph .node-name { fill: var(--text); text-anchor: middle; font-size: 12px; }
+  .graph .node-value { fill: var(--text); text-anchor: middle; font: 700 18px ui-monospace, monospace; }
+  .graph .column-name { fill: var(--text); text-anchor: middle; font-size: 13px; }
+  .graph-note { font-size: .82rem; }
   .neurons { display: flex; flex-wrap: wrap; align-items: center; gap: .42rem; margin: .7rem 0 .8rem; }
   .neurons button { min-width: 44px; min-height: 39px; padding: .36rem .55rem; }
-  .neurons button[aria-pressed="true"] { border-color: #80e9f2; background: #1a4156; }
+  .neurons button[aria-pressed="true"] { border-color: var(--text); background: var(--active); font-weight: 700; }
   .control-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: .7rem; }
   .control-label { display: grid; gap: .28rem; min-width: 0; }
   .control-label span { font-size: .87rem; }
   select { min-height: 42px; width: 100%; padding-inline: .42rem; }
-  input[type="range"] { width: 100%; min-width: 0; accent-color: #82e9f2; cursor: pointer; }
-  input[type="checkbox"] { margin: 0; width: 18px; height: 18px; accent-color: var(--accent); }
+  input[type="range"] { width: 100%; min-width: 0; accent-color: var(--text); cursor: pointer; }
+  input[type="checkbox"] { margin: 0; width: 18px; height: 18px; accent-color: var(--text); }
   .slider-line { display: grid; grid-template-columns: minmax(0, 1fr) 2.25rem; align-items: center; gap: .42rem; min-height: 37px; }
-  .slider-value { text-align: end; font: 700 .91rem ui-monospace, monospace; color: var(--accent); }
+  .slider-value { text-align: end; font: 700 .91rem ui-monospace, monospace; }
   fieldset { padding: 0; border: 0; margin: .77rem 0 0; min-width: 0; }
   legend { padding: 0; color: var(--text); font-size: .88rem; font-weight: 700; }
-  .edge-row { display: grid; grid-template-columns: 5.7rem minmax(0, 1fr); gap: .55rem; align-items: center; min-height: 46px; border-bottom: 1px solid #2e4059; }
+  .edge-row { display: grid; grid-template-columns: 5.7rem minmax(0, 1fr); gap: .55rem; align-items: center; min-height: 46px; border-bottom: 1px solid var(--line); }
   .edge-switch { display: inline-flex; align-items: center; gap: .42rem; min-height: 44px; font-size: .86rem; cursor: pointer; }
   .edge-row input:disabled { opacity: .38; cursor: default; }
-  .equation { min-height: 5.3em; padding: .6rem .65rem; background: #0c192b; border: 1px solid #314460; border-radius: .55rem; margin-top: .78rem; font-size: .86rem; }
-  .equation code { display: block; color: #d6eafa; margin-top: .14rem; overflow-wrap: anywhere; font-family: ui-monospace, Consolas, monospace; }
+  .equation { min-height: 5.3em; padding: .6rem .65rem; background: var(--surface); border: 1px solid var(--line); border-radius: .55rem; margin-top: .78rem; font-size: .86rem; }
+  .equation code { display: block; margin-top: .14rem; overflow-wrap: anywhere; font-family: ui-monospace, Consolas, monospace; }
   .lower { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); gap: 1rem; margin-top: 1rem; align-items: start; }
   .samples { width: 100%; margin-top: .62rem; border-collapse: collapse; text-align: end; font-variant-numeric: tabular-nums; }
-  .samples th, .samples td { border-bottom: 1px solid #30425d; padding: .38rem .34rem; }
-  .samples th { color: #b6c7de; font-size: .84rem; font-weight: 500; }
+  .samples th, .samples td { border-bottom: 1px solid var(--line); padding: .38rem .34rem; }
+  .samples th { font-size: .84rem; font-weight: 700; }
   .samples th:first-child, .samples td:first-child { text-align: start; }
-  .sample-button { padding: .15rem .4rem; min-height: 35px; border-radius: .38rem; color: #e5f3ff; font-size: .88rem; }
-  .sample-button[aria-pressed="true"] { background: #214559; border-color: #79d5e6; }
-  .samples tr.chosen { background: #192c42; }
-  .correct { color: var(--aqua); }
-  .incorrect { color: var(--amber); }
+  .sample-button { padding: .15rem .4rem; min-height: 35px; border-radius: .38rem; font-size: .88rem; }
+  .sample-button[aria-pressed="true"] { background: var(--active); border-color: var(--text); font-weight: 700; }
+  .samples tr.chosen { background: var(--surface); }
+  .correct, .incorrect { font-weight: 700; }
   .actions { display: flex; flex-wrap: wrap; gap: .44rem; margin-top: .8rem; }
-  .primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); font-weight: 700; }
-  .primary:not(:disabled):hover { background: #b8f8ff; }
+  .primary { background: var(--active); border-color: var(--text); font-weight: 700; }
+  .primary:not(:disabled):hover { background: #ddd; }
   .feedback { min-height: 2.5em; }
-  .hint { margin-top: .7rem; padding: .54rem .64rem; border-inline-start: 3px solid #5fb6cb; background: #15283f; font-size: .91rem; }
+  .hint { margin-top: .7rem; padding: .54rem .64rem; border-inline-start: 3px solid var(--text); background: var(--surface); font-size: .91rem; }
   .hint:empty, [hidden] { display: none !important; }
-  .footer { margin-block: 1.6rem 0; padding-block: 1.06rem 1.7rem; border-top: 1px solid var(--line); color: var(--muted); display: flex; flex-wrap: wrap; justify-content: space-between; gap: .4rem 1.2rem; font-size: .82rem; }
+  .footer { margin-block: 1.6rem 0; padding-block: 1.06rem 1.7rem; border-top: 1px solid var(--line); display: flex; flex-wrap: wrap; justify-content: space-between; gap: .4rem 1.2rem; font-size: .82rem; }
   @media (max-width: 730px) {
     .wrap { width: calc(100% - 1.5rem); }
     .hero { padding-top: 1.56rem; }
@@ -145,7 +143,7 @@
         <button type="button" id="remove-node">删除选中神经元</button>
       </div>
       <svg id="graph" class="graph" viewBox="0 0 550 252" aria-hidden="true"></svg>
-      <p class="graph-note">图中数字是所选样本的节点输出。实线代表已接通，蓝线是正权重，橙线是负权重。</p>
+      <p class="graph-note">节点上的数字是所选样本的输出。黑色实线表示正权重，黑色虚线表示负权重，黑色点线表示零权重，灰色虚线表示未接通。</p>
     </section>
     <section class="card" aria-labelledby="inspector-title">
       <h2 id="inspector-title">调校神经元</h2>
