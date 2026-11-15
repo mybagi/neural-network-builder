@@ -1,0 +1,505 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0b1323">
+<meta name="description" content="从连接、权重和偏置开始，用三个小实验亲手搭建神经网络。">
+<title>神经网络搭建实验室</title>
+<style>
+  :root {
+    color-scheme: dark;
+    --page: #0b1323; --panel: #121e31; --deep: #0d182b; --line: #344762;
+    --text: #edf5ff; --muted: #aabbd1; --accent: #85e8f2; --accent-ink: #052832;
+    --aqua: #b0efdf; --amber: #ffd196; --blue: #a9c9ff;
+    font-family: Inter, "Microsoft YaHei", "PingFang SC", system-ui, sans-serif;
+    background: var(--page); color: var(--text);
+  }
+  *, *::before, *::after { box-sizing: border-box; }
+  body { margin: 0; min-width: 0; font-size: 1rem; line-height: 1.55; }
+  a { color: var(--accent); text-underline-offset: .18em; }
+  button, input, select { font: inherit; }
+  button, select { color: inherit; border: 1px solid var(--line); background: var(--deep); border-radius: .55rem; }
+  button { cursor: pointer; min-height: 42px; padding: .46rem .74rem; }
+  button:not(:disabled):not([aria-disabled="true"]):hover { border-color: var(--accent); }
+  button:disabled, button[aria-disabled="true"] { opacity: .47; cursor: default; }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+  .wrap { width: min(1150px, calc(100% - 3rem)); margin-inline: auto; }
+  .top { background: #0c1627; border-bottom: 1px solid #293a55; }
+  .top-inner { min-height: 68px; display: flex; gap: .75rem; align-items: center; justify-content: space-between; }
+  .brand { display: inline-flex; gap: .68rem; align-items: center; font-size: .92rem; font-weight: 700; }
+  .mark { display: grid; place-items: center; width: 38px; height: 38px; border-radius: .65rem; background: #173d50; color: var(--accent); font: 700 1rem/1 ui-monospace, monospace; }
+  .back { font-size: .84rem; text-decoration: none; }
+  .back:hover { text-decoration: underline; }
+  .hero { padding: 2.4rem 0 1.45rem; }
+  .hero h1 { font-size: clamp(2rem, 4.8vw, 3.52rem); line-height: 1.13; letter-spacing: -.035em; margin: 0 0 .7rem; }
+  .hero p { color: var(--muted); max-width: 42rem; margin: 0; }
+  .labs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .65rem; margin-bottom: 1rem; }
+  .lab { min-width: 0; display: flex; align-items: center; gap: .64rem; padding: .62rem .8rem; text-align: left; background: #101b2e; }
+  .lab[aria-pressed="true"] { border-color: #57afc3; background: #173247; color: #e8fcff; }
+  .lab-number { flex: none; color: var(--accent); font: 600 .86rem ui-monospace, monospace; }
+  .lab-name { min-width: 0; overflow-wrap: anywhere; }
+  .lab-done { margin-inline-start: auto; color: var(--aqua); font-weight: 700; }
+  .main-grid { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); gap: 1rem; align-items: start; }
+  .card { min-width: 0; border: 1px solid var(--line); border-radius: .92rem; background: var(--panel); padding: 1rem; }
+  .card h2 { margin: 0; font-size: 1.15rem; line-height: 1.3; }
+  .card p { margin: .4rem 0 0; }
+  .subtle { color: var(--muted); font-size: .88rem; }
+  .board-head { display: flex; flex-wrap: wrap; align-items: start; justify-content: space-between; gap: .56rem; }
+  .badge { display: inline-block; background: #183650; color: #b9dafa; border-radius: .44rem; font-size: .83rem; padding: .2rem .46rem; font-variant-numeric: tabular-nums; }
+  .architecture { display: flex; flex-wrap: wrap; gap: .45rem; margin: .9rem 0 .72rem; }
+  .architecture button { background: #172a40; font-size: .88rem; }
+  .graph { display: block; width: 100%; height: auto; aspect-ratio: 550 / 252; border: 1px solid #2f425f; border-radius: .68rem; background: radial-gradient(circle at 48% 45%, #172839, #0c192a 74%); }
+  .graph .guide { stroke: #34465c; fill: none; stroke-width: 1; stroke-dasharray: 3 6; }
+  .graph .edge { fill: none; stroke-width: 2; }
+  .graph .edge-positive { stroke: #6acdd7; }
+  .graph .edge-negative { stroke: #edbc81; }
+  .graph .edge-zero { stroke: #a1b1c9; }
+  .graph .edge-text { fill: #e0edf9; text-anchor: middle; font: 600 12px ui-monospace, monospace; paint-order: stroke; stroke: #0e1a29; stroke-width: 5px; stroke-linejoin: round; }
+  .graph .node { fill: #142a44; stroke: #7594b9; stroke-width: 1.7; }
+  .graph .node-active { stroke: #aff7ff; stroke-width: 2.6; }
+  .graph .node-select { cursor: pointer; }
+  .graph .node-select:hover .node { fill: #194053; }
+  .graph .node-name { fill: #e7f5ff; text-anchor: middle; font-size: 12px; }
+  .graph .node-value { fill: #fff; text-anchor: middle; font: 700 18px ui-monospace, monospace; }
+  .graph .column-name { fill: #aebed1; text-anchor: middle; font-size: 13px; }
+  .graph-note { font-size: .82rem; color: var(--muted); }
+  .neurons { display: flex; flex-wrap: wrap; align-items: center; gap: .42rem; margin: .7rem 0 .8rem; }
+  .neurons button { min-width: 44px; min-height: 39px; padding: .36rem .55rem; }
+  .neurons button[aria-pressed="true"] { border-color: #80e9f2; background: #1a4156; }
+  .control-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: .7rem; }
+  .control-label { display: grid; gap: .28rem; min-width: 0; }
+  .control-label span { font-size: .87rem; }
+  select { min-height: 42px; width: 100%; padding-inline: .42rem; }
+  input[type="range"] { width: 100%; min-width: 0; accent-color: #82e9f2; cursor: pointer; }
+  input[type="checkbox"] { margin: 0; width: 18px; height: 18px; accent-color: var(--accent); }
+  .slider-line { display: grid; grid-template-columns: minmax(0, 1fr) 2.25rem; align-items: center; gap: .42rem; min-height: 37px; }
+  .slider-value { text-align: end; font: 700 .91rem ui-monospace, monospace; color: var(--accent); }
+  fieldset { padding: 0; border: 0; margin: .77rem 0 0; min-width: 0; }
+  legend { padding: 0; color: var(--text); font-size: .88rem; font-weight: 700; }
+  .edge-row { display: grid; grid-template-columns: 5.7rem minmax(0, 1fr); gap: .55rem; align-items: center; min-height: 46px; border-bottom: 1px solid #2e4059; }
+  .edge-switch { display: inline-flex; align-items: center; gap: .42rem; min-height: 44px; font-size: .86rem; cursor: pointer; }
+  .edge-row input:disabled { opacity: .38; cursor: default; }
+  .equation { min-height: 5.3em; padding: .6rem .65rem; background: #0c192b; border: 1px solid #314460; border-radius: .55rem; margin-top: .78rem; font-size: .86rem; }
+  .equation code { display: block; color: #d6eafa; margin-top: .14rem; overflow-wrap: anywhere; font-family: ui-monospace, Consolas, monospace; }
+  .lower { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); gap: 1rem; margin-top: 1rem; align-items: start; }
+  .samples { width: 100%; margin-top: .62rem; border-collapse: collapse; text-align: end; font-variant-numeric: tabular-nums; }
+  .samples th, .samples td { border-bottom: 1px solid #30425d; padding: .38rem .34rem; }
+  .samples th { color: #b6c7de; font-size: .84rem; font-weight: 500; }
+  .samples th:first-child, .samples td:first-child { text-align: start; }
+  .sample-button { padding: .15rem .4rem; min-height: 35px; border-radius: .38rem; color: #e5f3ff; font-size: .88rem; }
+  .sample-button[aria-pressed="true"] { background: #214559; border-color: #79d5e6; }
+  .samples tr.chosen { background: #192c42; }
+  .correct { color: var(--aqua); }
+  .incorrect { color: var(--amber); }
+  .actions { display: flex; flex-wrap: wrap; gap: .44rem; margin-top: .8rem; }
+  .primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); font-weight: 700; }
+  .primary:not(:disabled):hover { background: #b8f8ff; }
+  .feedback { min-height: 2.5em; }
+  .hint { margin-top: .7rem; padding: .54rem .64rem; border-inline-start: 3px solid #5fb6cb; background: #15283f; font-size: .91rem; }
+  .hint:empty, [hidden] { display: none !important; }
+  .footer { margin-block: 1.6rem 0; padding-block: 1.06rem 1.7rem; border-top: 1px solid var(--line); color: var(--muted); display: flex; flex-wrap: wrap; justify-content: space-between; gap: .4rem 1.2rem; font-size: .82rem; }
+  @media (max-width: 730px) {
+    .wrap { width: calc(100% - 1.5rem); }
+    .hero { padding-top: 1.56rem; }
+    .main-grid, .lower { grid-template-columns: minmax(0, 1fr); gap: .75rem; }
+    .labs { gap: .37rem; }
+    .lab { padding: .5rem .4rem; gap: .31rem; font-size: .87rem; }
+    .card { padding: .82rem; }
+  }
+  @media (max-width: 540px) {
+    .graph { aspect-ratio: 330 / 252; }
+  }
+  @media (max-width: 365px) {
+    .lab-number { font-size: .75rem; }
+    .lab-done { display: none; }
+    .top-inner { min-height: 62px; gap: .4rem; }
+    .brand { gap: .43rem; font-size: .8rem; }
+    .mark { width: 31px; height: 31px; }
+    .back { font-size: .77rem; }
+  }
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="wrap top-inner">
+    <div class="brand"><span class="mark" aria-hidden="true">NN</span>神经网络搭建实验室</div>
+    <a class="back" href="https://mybian.cn/funzone">← 返回互动区</a>
+  </div>
+</header>
+<main class="wrap">
+  <div class="hero">
+    <h1>搭出一张神经网络</h1>
+    <p>亲手接线，调整权重和偏置，再观察激活函数怎样改变输出。让同一张网络通过这一关的所有样本。</p>
+  </div>
+  <nav class="labs" id="levels" aria-label="选择实验"></nav>
+  <div class="main-grid">
+    <section class="card" aria-labelledby="goal-title">
+      <div class="board-head">
+        <div><h2 id="goal-title"></h2><p id="goal" class="subtle"></p></div>
+        <output id="score" class="badge" aria-label="已符合目标的样本数"></output>
+      </div>
+      <div class="architecture" id="architecture">
+        <button type="button" id="layer-toggle"></button>
+        <button type="button" id="add-node">添加神经元</button>
+        <button type="button" id="remove-node">删除选中神经元</button>
+      </div>
+      <svg id="graph" class="graph" viewBox="0 0 550 252" aria-hidden="true"></svg>
+      <p class="graph-note">图中数字是所选样本的节点输出。实线代表已接通，蓝线是正权重，橙线是负权重。</p>
+    </section>
+    <section class="card" aria-labelledby="inspector-title">
+      <h2 id="inspector-title">调校神经元</h2>
+      <p class="subtle">选中一个神经元，再接通来自上一层的输入。</p>
+      <div id="neurons" class="neurons" role="group" aria-label="选中神经元"></div>
+      <div id="inspector"></div>
+      <div id="equation" class="equation" aria-label="选中神经元的计算"></div>
+    </section>
+  </div>
+  <div class="lower">
+    <section class="card" aria-labelledby="samples-title">
+      <h2 id="samples-title">测试样本</h2>
+      <p class="subtle">点选输入，查看它在网络中的传播过程。</p>
+      <table class="samples" id="samples"></table>
+    </section>
+    <section class="card" aria-labelledby="check-title">
+      <h2 id="check-title">检验网络</h2>
+      <p id="feedback" class="feedback subtle" role="status" aria-live="polite">先接通输入，再调整网络。</p>
+      <p id="hint" class="hint" aria-live="polite"></p>
+      <div class="actions">
+        <button type="button" id="check" class="primary">检查全部样本</button>
+        <button type="button" id="hint-button">提示</button>
+        <button type="button" id="reset">重置当前关</button>
+        <button type="button" id="next" hidden>下一关 →</button>
+      </div>
+    </section>
+  </div>
+</main>
+<footer class="wrap footer">
+  <span>神经网络搭建实验室</span>
+  <span>最后更新 <time datetime="2026-11-15">2026-11-15</time></span>
+</footer>
+<script>
+  'use strict';
+
+  const inputNames = ['x₁', 'x₂'];
+  const labs = [
+    {
+      name: '或门', title: '让两个开关控制一个输出', goal: '只要至少一个输入为 1，输出就应是 1。',
+      inputs: 2, activation: 'step', samples: [[0,0,0], [0,1,1], [1,0,1], [1,1,1]],
+      hints: ['选中输出 y，接通 x₁ 和 x₂。先把两条连接的权重都设为 1。',
+        '阶跃函数在 z ≥ 0 时输出 1。两个输入都为 0 时，z 等于偏置，偏置需要是负数。',
+        '试试两条权重都为 1，偏置为 −0.5，输出使用阶跃函数。'],
+    },
+    {
+      name: '异或门', title: '用隐藏层识别不同的输入', goal: '两个输入恰好有一个为 1 时输出 1；相同时输出 0。',
+      inputs: 2, activation: 'step', samples: [[0,0,0], [0,1,1], [1,0,1], [1,1,0]],
+      hints: ['一个直接接收 x₁ 和 x₂ 的阶跃神经元只能用一条直线划分输入平面。加入一个有两个神经元的隐藏层。',
+        '分别用两个 ReLU 神经元计算 max(0, x₁−x₂) 和 max(0, x₂−x₁)。它们的偏置都设为 0。',
+        '把两个隐藏神经元都用权重 1 接到输出 y。输出用阶跃函数，偏置设为 −0.5。'],
+    },
+    {
+      name: '信号限幅', title: '把连续信号限制在 0 到 1', goal: '负数变成 0，大于 1 的数变成 1，中间的数保持原值。',
+      inputs: 1, activation: 'linear', samples: [[-2,0], [-.5,0], [0,0], [.25,.25], [.7,.7], [1,1], [1.5,1], [3,1]],
+      hints: ['ReLU 在输入为负时输出 0。先用一个 ReLU 神经元让信号从 0 开始上升。',
+        '用第二个 ReLU 神经元为信号制造另一个转折点。把它的偏置设为 −1，让它从 x₁ = 1 开始上升。',
+        '线性输出 y 连接这两个 ReLU 神经元，权重分别为 1 和 −1，偏置为 0。两段斜坡相减，输出就会在 1 处停住。'],
+    },
+  ];
+  const activationNames = { step: '阶跃', relu: 'ReLU', linear: '线性' };
+  const activationRules = { step: 'z ≥ 0 时为 1，否则为 0', relu: 'max(0, z)', linear: '保持 z 不变' };
+  const $ = id => document.getElementById(id);
+  const graph = $('graph');
+  const compactGraph = matchMedia('(max-width: 540px)');
+  const rounded = value => `${Number(value.toFixed(2))}`;
+  const neuron = (id, activation) => ({ id, activation, bias: 0, weights: {} });
+  let level = 0;
+  let network;
+  let selected;
+  let sampleIndex;
+  let hintIndex;
+  let completed = new Set();
+  try {
+    const stored = JSON.parse(localStorage.getItem('mybian-neural-lab-progress') || '[]');
+    if (Array.isArray(stored)) completed = new Set(stored.filter(value => Number.isInteger(value) && value >= 0 && value < labs.length));
+  } catch { /* The lab also works when storage is unavailable. */ }
+
+  const lab = () => labs[level];
+  const sources = target => target.id === 'y' && network.hidden.length
+    ? network.hidden.map(item => item.id) : inputNames.slice(0, lab().inputs);
+  const nodeById = id => id === 'y' ? network.output : network.hidden.find(item => item.id === id);
+  const isConnected = (target, source) => Object.hasOwn(target.weights, source);
+
+  function activate(name, value) {
+    if (name === 'step') return value >= 0 ? 1 : 0;
+    if (name === 'relu') return Math.max(0, value);
+    return value;
+  }
+
+  function evaluate(sample) {
+    const values = Object.fromEntries(inputNames.slice(0, lab().inputs).map((name, index) => [name, sample[index]]));
+    const traces = {};
+    for (const node of [...network.hidden, network.output]) {
+      const terms = sources(node).filter(source => isConnected(node, source)).map(source => ({
+        source, value: values[source], weight: node.weights[source],
+      }));
+      const sum = terms.reduce((result, term) => result + term.value * term.weight, node.bias);
+      values[node.id] = activate(node.activation, sum);
+      traces[node.id] = { terms, sum };
+    }
+    const target = sample.at(-1);
+    return { values, traces, target, correct: Math.abs(values.y - target) < .0001 };
+  }
+
+  function feedback(message, style = 'subtle') {
+    const element = $('feedback');
+    if (element.textContent !== message) element.textContent = message;
+    element.className = `feedback ${style}`;
+  }
+
+  function loadLevel(next, moveFocus = false) {
+    level = next;
+    network = { hidden: [], output: neuron('y', lab().activation), nextNode: 1 };
+    selected = 'y';
+    sampleIndex = 0;
+    hintIndex = 0;
+    $('hint').textContent = '';
+    $('hint-button').textContent = '提示';
+    $('hint-button').removeAttribute('aria-disabled');
+    $('next').hidden = true;
+    $('goal-title').textContent = lab().title;
+    $('goal').textContent = lab().goal;
+    feedback('先接通输入，再调整网络。');
+    renderLevels();
+    renderEditor();
+    renderResults();
+    if (moveFocus) $('levels').querySelector(`[data-level="${level}"]`).focus();
+  }
+
+  function renderLevels() {
+    $('levels').innerHTML = labs.map((item, index) => `
+      <button type="button" class="lab" data-level="${index}" aria-pressed="${index === level}">
+        <span class="lab-number" aria-hidden="true">0${index + 1}</span><span class="lab-name">${item.name}</span>
+        ${completed.has(index) ? '<span class="lab-done" aria-label="已完成">✓</span>' : ''}
+      </button>`).join('');
+  }
+
+  function renderEditor() {
+    const hidden = network.hidden.length > 0;
+    $('layer-toggle').textContent = hidden ? '移除隐藏层' : '加入隐藏层';
+    $('add-node').hidden = $('remove-node').hidden = !hidden;
+    $('add-node').disabled = network.hidden.length >= 4;
+    $('remove-node').disabled = selected === 'y' || network.hidden.length === 1;
+    $('neurons').innerHTML = [...network.hidden, network.output].map(item => `
+      <button type="button" data-neuron="${item.id}" aria-pressed="${item.id === selected}">
+        ${item.id === 'y' ? '输出 y' : item.id}
+      </button>`).join('');
+    const node = nodeById(selected);
+    $('inspector').innerHTML = `
+      <div class="control-grid">
+        <label class="control-label"><span>激活函数</span><select id="activation">
+          ${Object.entries(activationNames).map(([key, name]) => `<option value="${key}"${key === node.activation ? ' selected' : ''}>${name}</option>`).join('')}
+        </select></label>
+        <label class="control-label"><span>偏置 b</span><span class="slider-line">
+          <input id="bias" type="range" min="-3" max="3" step="0.5" value="${node.bias}" aria-label="${node.id} 的偏置">
+          <output class="slider-value" for="bias">${rounded(node.bias)}</output>
+        </span></label>
+      </div>
+      <fieldset><legend>输入连接与权重</legend>
+        ${sources(node).map((source, index) => {
+          const connected = isConnected(node, source);
+          return `<div class="edge-row">
+            <label class="edge-switch"><input type="checkbox" data-wire="${source}" aria-label="连接 ${source} 到 ${node.id}"${connected ? ' checked' : ''}>${source} → ${node.id}</label>
+            <div class="slider-line">
+              <input id="weight-${index}" type="range" min="-3" max="3" step="0.5" value="${node.weights[source] ?? 1}" data-weight="${source}" aria-label="${source} 到 ${node.id} 的权重"${connected ? '' : ' disabled'}>
+              <output class="slider-value" for="weight-${index}">${connected ? rounded(node.weights[source]) : '—'}</output>
+            </div>
+          </div>`;
+        }).join('')}
+      </fieldset>`;
+  }
+
+  function renderResults() {
+    const results = lab().samples.map(evaluate);
+    const passCount = results.filter(result => result.correct).length;
+    $('score').textContent = `${passCount} / ${results.length} 样本符合`;
+    renderGraph(results[sampleIndex]);
+    renderEquation(results[sampleIndex]);
+    const currentFocus = document.activeElement.dataset.sample;
+    $('samples').innerHTML = `<thead><tr><th scope="col">输入</th><th scope="col">目标</th><th scope="col">实际输出</th><th scope="col">结果</th></tr></thead>
+      <tbody>${lab().samples.map((sample, index) => {
+        const result = results[index];
+        const active = index === sampleIndex;
+        return `<tr${active ? ' class="chosen"' : ''}>
+          <th scope="row"><button type="button" class="sample-button" data-sample="${index}" aria-label="查看输入 ${sample.slice(0, -1).join('、')}" aria-pressed="${active}">${sample.slice(0, -1).map(rounded).join('，')}</button></th>
+          <td>${rounded(result.target)}</td><td>${rounded(result.values.y)}</td>
+          <td class="${result.correct ? 'correct' : 'incorrect'}">${result.correct ? '符合' : '未符合'}</td>
+        </tr>`;
+      }).join('')}</tbody>`;
+    if (currentFocus !== undefined) $('samples').querySelector(`[data-sample="${currentFocus}"]`)?.focus();
+  }
+
+  function renderEquation(result) {
+    const node = nodeById(selected);
+    const trace = result.traces[selected];
+    const terms = trace.terms.map(term => `${rounded(term.value)} × (${rounded(term.weight)})`);
+    const total = [...terms, `(${rounded(node.bias)})`].join(' + ');
+    $('equation').innerHTML = `<span>先加权求和，加上偏置，再做激活。</span>
+      <code>z = ${total} = ${rounded(trace.sum)}</code>
+      <code>${node.id} = ${activationNames[node.activation]}(${rounded(trace.sum)}) = ${rounded(result.values[node.id])}</code>
+      <span class="subtle">${activationRules[node.activation]}</span>`;
+  }
+
+  function renderGraph(result) {
+    const groups = [inputNames.slice(0, lab().inputs)];
+    if (network.hidden.length) groups.push(network.hidden.map(item => item.id));
+    groups.push(['y']);
+    const positions = {};
+    const compact = compactGraph.matches;
+    const columns = groups.length === 2 ? (compact ? [51, 277] : [109, 430])
+      : (compact ? [44, 165, 286] : [85, 275, 465]);
+    graph.setAttribute('viewBox', `0 0 ${compact ? 330 : 550} 252`);
+    groups.forEach((group, column) => group.forEach((id, row) => {
+      positions[id] = { x: columns[column],
+        y: 140 + (row - (group.length - 1) / 2) * Math.min(75, 154 / Math.max(1, group.length - 1)) };
+    }));
+    const layerLabels = groups.map((group, index) => `<text class="column-name" x="${positions[group[0]].x}" y="27">
+      ${index === 0 ? '输入层' : index === groups.length - 1 ? '输出层' : '隐藏层'}
+    </text>`).join('');
+    const edges = [];
+    for (const node of [...network.hidden, network.output]) {
+      const to = positions[node.id];
+      for (const source of sources(node)) {
+        const from = positions[source];
+        const connected = isConnected(node, source);
+        const weight = node.weights[source];
+        const sign = weight > 0 ? 'positive' : weight < 0 ? 'negative' : 'zero';
+        const selectedEdge = node.id === selected;
+        const path = `<line class="${connected ? `edge edge-${sign}` : 'guide'}" x1="${from.x}" y1="${from.y}" x2="${to.x}" y2="${to.y}" opacity="${connected && !selectedEdge ? .66 : 1}" />`;
+        const labelX = from.x + (to.x - from.x) * .42;
+        const labelY = from.y + (to.y - from.y) * .42 - 5;
+        edges.push(path + (connected && selectedEdge ? `<text class="edge-text" x="${labelX}" y="${labelY}">${rounded(weight)}</text>` : ''));
+      }
+    }
+    const circles = Object.entries(positions).map(([id, point]) => `
+      <g transform="translate(${point.x}, ${point.y})"${nodeById(id) ? ` class="node-select" data-graph-neuron="${id}"` : ''}>
+        <circle class="node${id === selected ? ' node-active' : ''}" r="25" />
+        <text class="node-name" y="-5">${id}</text>
+        <text class="node-value" y="14">${rounded(result.values[id])}</text>
+      </g>`).join('');
+    graph.innerHTML = layerLabels + edges.join('') + circles;
+  }
+
+  function chooseNeuron(id, moveFocus = false) {
+    selected = id;
+    renderEditor();
+    renderResults();
+    if (moveFocus) $('neurons').querySelector(`[data-neuron="${id}"]`).focus();
+  }
+
+  function networkChanged() {
+    $('next').hidden = true;
+    feedback('网络已调整。检查全部样本，看看哪些输入还需要修正。');
+    renderResults();
+  }
+
+  $('levels').addEventListener('click', event => {
+    const button = event.target.closest('button[data-level]');
+    if (button && Number(button.dataset.level) !== level) loadLevel(Number(button.dataset.level), true);
+  });
+  $('neurons').addEventListener('click', event => {
+    const button = event.target.closest('button[data-neuron]');
+    if (button && button.dataset.neuron !== selected) chooseNeuron(button.dataset.neuron, true);
+  });
+  graph.addEventListener('click', event => {
+    const node = event.target.closest('[data-graph-neuron]');
+    if (node) chooseNeuron(node.dataset.graphNeuron);
+  });
+  compactGraph.addEventListener('change', () => renderGraph(evaluate(lab().samples[sampleIndex])));
+  $('samples').addEventListener('click', event => {
+    const button = event.target.closest('button[data-sample]');
+    if (button) {
+      sampleIndex = Number(button.dataset.sample);
+      renderResults();
+    }
+  });
+  $('inspector').addEventListener('input', event => {
+    const input = event.target;
+    const node = nodeById(selected);
+    if (input.id === 'activation') {
+      node.activation = input.value;
+    } else if (input.type === 'range') {
+      const value = Number(input.value);
+      if (input.id === 'bias') node.bias = value;
+      else node.weights[input.dataset.weight] = value;
+      input.parentElement.querySelector('output').textContent = rounded(value);
+    } else if (input.type === 'checkbox') {
+      const name = input.dataset.wire;
+      const slider = input.closest('.edge-row').querySelector('input[type="range"]');
+      if (input.checked) node.weights[name] = Number(slider.value);
+      else delete node.weights[name];
+      slider.disabled = !input.checked;
+      slider.parentElement.querySelector('output').textContent = input.checked ? rounded(node.weights[name]) : '—';
+    } else return;
+    networkChanged();
+  });
+
+  $('layer-toggle').addEventListener('click', () => {
+    const present = network.hidden.length > 0;
+    network.hidden = present ? [] : [neuron(`h${network.nextNode++}`, 'relu'), neuron(`h${network.nextNode++}`, 'relu')];
+    network.output.weights = {};
+    selected = present ? 'y' : network.hidden[0].id;
+    renderEditor();
+    networkChanged();
+    feedback(present ? '已移除隐藏层。现在可以把输入直接接到输出。' : '已加入隐藏层。输出现在接收隐藏层的信号，请重新接线。');
+  });
+  $('add-node').addEventListener('click', () => {
+    const node = neuron(`h${network.nextNode++}`, 'relu');
+    network.hidden.push(node);
+    selected = node.id;
+    renderEditor();
+    networkChanged();
+    if ($('add-node').disabled) $('neurons').querySelector(`[data-neuron="${selected}"]`).focus();
+  });
+  $('remove-node').addEventListener('click', () => {
+    delete network.output.weights[selected];
+    network.hidden = network.hidden.filter(node => node.id !== selected);
+    selected = network.hidden[0].id;
+    renderEditor();
+    networkChanged();
+    if ($('remove-node').disabled) $('neurons').querySelector(`[data-neuron="${selected}"]`).focus();
+  });
+
+  $('check').addEventListener('click', () => {
+    const results = lab().samples.map(evaluate);
+    const failure = results.findIndex(result => !result.correct);
+    if (failure !== -1) {
+      sampleIndex = failure;
+      renderResults();
+      const result = results[failure];
+      feedback(`先看第 ${failure + 1} 个样本：目标是 ${rounded(result.target)}，你的输出是 ${rounded(result.values.y)}。选中相应神经元检查计算。`, 'incorrect');
+      return;
+    }
+    completed.add(level);
+    try { localStorage.setItem('mybian-neural-lab-progress', JSON.stringify([...completed])); } catch { /* Progress remains available until the tab closes. */ }
+    renderLevels();
+    const final = level === labs.length - 1;
+    $('next').hidden = final;
+    feedback(final ? `这一关的 ${results.length} 个样本全部通过。你已完成信号限幅挑战。`
+      : `这一关的 ${results.length} 个样本全部通过。可以进入下一关。`, 'correct');
+  });
+  $('hint-button').addEventListener('click', () => {
+    if (hintIndex === lab().hints.length) return;
+    $('hint').textContent = lab().hints[hintIndex++];
+    $('hint-button').textContent = hintIndex < lab().hints.length ? '下一条提示' : '已显示全部提示';
+    if (hintIndex === lab().hints.length) $('hint-button').setAttribute('aria-disabled', 'true');
+  });
+  $('next').addEventListener('click', () => loadLevel(level + 1, true));
+  $('reset').addEventListener('click', () => {
+    loadLevel(level);
+    feedback('已恢复本关的初始网络。');
+  });
+
+  loadLevel(0);
+</script>
+</body>
+</html>
