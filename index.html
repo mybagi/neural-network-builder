@@ -184,15 +184,14 @@
 </main>
 <footer class="wrap footer">
   <span><span data-en="Neural Network Lab">神经网络搭建实验室</span></span>
-  <span><span data-en="Last updated">最后更新</span> <time datetime="2026-11-16">2026-11-16</time></span>
+  <span><span data-en="Last updated">最后更新</span> <time datetime="2026-11-17">2026-11-17</time></span>
 </footer>
-<script src="./vendor/opencc-cn2t.js"></script>
 <script src="./locale.js"></script>
 <script>
   'use strict';
 
   const locale = window.siteLocale;
-  let gameLanguage = locale.read('zh');
+  let gameLanguage;
   const t = (zh, en) => locale.text(gameLanguage, zh, en);
   const words = {
     "神经网络搭建实验室": "Neural Network Lab",
@@ -252,23 +251,11 @@
   const languageSelect = document.querySelector('.game-nav .language');
 
   function renderLanguage() {
-    locale.apply(languageSelect, gameLanguage);
     description.content = t(chineseDescription, "Build and test a neural network by wiring neurons, setting weights, and choosing activation functions.");
     document.title = label('神经网络搭建实验室');
     for (const [element, zh] of staticText) element.textContent = t(zh, element.dataset.en);
     for (const [element, zh] of staticLabels) element.setAttribute('aria-label', t(zh, element.dataset.enLabel));
   }
-
-  function onLanguageChange(redraw) {
-    languageSelect.addEventListener('change', () => {
-      gameLanguage = languageSelect.value;
-      locale.save(gameLanguage);
-      renderLanguage();
-      redraw();
-    });
-    renderLanguage();
-  }
-
 
   const inputNames = ['x₁', 'x₂'];
   const labs = [
@@ -592,7 +579,14 @@
     feedback(() => label('已恢复本关的初始网络。'));
   });
 
-  onLanguageChange(() => {
+  locale.bind(languageSelect, 'zh', selected => {
+    const firstRender = gameLanguage === undefined;
+    gameLanguage = selected;
+    renderLanguage();
+    if (firstRender) {
+      loadLevel(0);
+      return;
+    }
     $('goal-title').textContent = label(lab().title);
     $('goal').textContent = label(lab().goal);
     if (hintIndex) $('hint').textContent = label(lab().hints[hintIndex - 1]);
@@ -602,7 +596,6 @@
     renderEditor();
     renderResults();
   });
-  loadLevel(0);
 </script>
 </body>
 </html>
