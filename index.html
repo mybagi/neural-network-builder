@@ -3,103 +3,124 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#fff">
+<meta name="theme-color" content="#f2f8fa">
 <meta name="description" content="从连接、权重和偏置开始，用三个小实验亲手搭建神经网络。">
 <title>神经网络搭建实验室</title>
+<link rel="stylesheet" href="./typography.css">
 <style>
-  :root { --site-font-increase: 1pt; }
   :root {
     color-scheme: light;
-    --text: #000; --page: #fff; --surface: #f7f7f7; --line: #ccc;
-    --active: #e9e9e9; --link: #1858a1;
-    font-family: Inter, "Microsoft YaHei", "PingFang SC", system-ui, sans-serif;
-    font-size: 112.5%;
+    --text: #17283b;
+    --muted: #43566e;
+    --page: #f2f8fa;
+    --card: #fff;
+    --surface: #edf6f7;
+    --line: #c7dce4;
+    --active: #dff2ed;
+    --accent: #176967;
+    --accent-hover: #105451;
+    --link: #195b8b;
+    --positive: #21796c;
+    --negative: #a13f62;
+    --zero: #495e86;
+    --success: #17624e;
+    --success-soft: #e7f5ee;
+    --warning: #923c4d;
+    --warning-soft: #fff0f2;
     background: var(--page); color: var(--text);
   }
   *, *::before, *::after { box-sizing: border-box; }
-  body { margin: 0; min-width: 0; font-size: calc(1rem + var(--site-font-increase)); line-height: 1.55; }
+  body { margin: 0; min-width: 0; background: radial-gradient(ellipse at 88% 0%, #e0edf9, transparent 39rem), var(--page); }
   a { color: var(--link); text-underline-offset: .18em; }
   button, input, select { font: inherit; }
   button, select { color: inherit; border: 1px solid var(--line); background: var(--surface); border-radius: .55rem; }
   button { cursor: pointer; min-height: 42px; padding: .46rem .74rem; }
-  button:not(:disabled):not([aria-disabled="true"]):hover { border-color: var(--text); }
+  button:not(:disabled):not([aria-disabled="true"]):hover { border-color: var(--accent); }
   button:disabled, button[aria-disabled="true"] { opacity: .47; cursor: default; }
-  :focus-visible { outline: 2px solid currentColor; outline-offset: 3px; }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
   .wrap { width: min(1150px, calc(100% - 3rem)); margin-inline: auto; }
   @media (min-width: 1024px) {
     .wrap { width: calc(min(1150px, 100% - 3rem) - 2cm); }
   }
-  .top { border-bottom: 1px solid var(--line); }
+  .top { border-bottom: 1px solid var(--line); background: var(--card); }
   .top-inner { min-height: 68px; display: flex; gap: .75rem; align-items: center; justify-content: space-between; }
   .brand { display: inline-flex; gap: .68rem; align-items: center; font-size: calc(.92rem + var(--site-font-increase)); font-weight: 700; }
-  .mark { display: grid; place-items: center; width: 38px; height: 38px; border-radius: .65rem; background: var(--active); font: 700 calc(1rem + var(--site-font-increase))/1 ui-monospace, monospace; }
+  .mark { display: grid; flex: none; place-items: center; width: 38px; height: 38px; border-radius: .65rem; color: #fff; background: var(--accent); font-size: calc(1rem + var(--site-font-increase)); line-height: 1; }
   .back { font-size: calc(.84rem + var(--site-font-increase)); text-decoration: none; }
   .back:hover { text-decoration: underline; }
+  .game-nav { display: flex; align-items: center; justify-content: flex-end; flex-wrap: wrap; gap: .35rem .75rem; }
+  .game-nav .language { min-height: 36px; width: auto; padding: .2rem .52rem; font-size: calc(.82rem + var(--site-font-increase)); cursor: pointer; }
   .hero { padding: 2.4rem 0 1.45rem; }
-  .hero h1 { font-size: calc(clamp(2rem, 4.8vw + 2px, 3.52rem) + var(--site-font-increase)); line-height: 1.13; letter-spacing: -.035em; margin: 0 0 .7rem; }
-  .hero p { max-width: 42rem; margin: 0; }
+  .hero h1 { font-size: calc(clamp(2rem, 4.8vw + 2px, 3.52rem) + var(--site-font-increase)); line-height: 1.13; margin: 0 0 .7rem; }
+  .hero p { max-width: 46rem; margin: 0; color: var(--muted); }
   .labs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .65rem; margin-bottom: 1rem; }
-  .lab { min-width: 0; display: flex; align-items: center; gap: .64rem; padding: .62rem .8rem; text-align: left; background: var(--surface); }
-  .lab[aria-pressed="true"] { border-color: var(--text); background: var(--active); font-weight: 700; }
-  .lab-number { flex: none; font: 600 calc(.86rem + var(--site-font-increase)) ui-monospace, monospace; }
+  .lab { min-width: 0; display: flex; align-items: center; gap: .64rem; padding: .62rem .8rem; text-align: left; background: var(--card); }
+  .lab[aria-pressed="true"] { border-color: var(--accent); background: var(--active); font-weight: 700; }
+  .lab-number { flex: none; color: var(--accent); font-size: calc(.86rem + var(--site-font-increase)); font-weight: 700; font-variant-numeric: tabular-nums; }
   .lab-name { min-width: 0; overflow-wrap: anywhere; }
-  .lab-done { margin-inline-start: auto; font-weight: 700; }
+  .lab-done { margin-inline-start: auto; color: var(--success); font-weight: 700; }
   .main-grid { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); gap: 1rem; align-items: start; }
-  .card { min-width: 0; border: 1px solid var(--line); border-radius: .92rem; background: var(--page); padding: 1rem; }
+  .card { min-width: 0; border: 1px solid var(--line); border-radius: .92rem; background: var(--card); padding: 1rem; }
   .card h2 { margin: 0; font-size: calc(1.15rem + var(--site-font-increase)); line-height: 1.3; }
   .card p { margin: .4rem 0 0; }
-  .subtle { font-size: calc(.88rem + var(--site-font-increase)); }
+  .subtle { color: var(--muted); font-size: calc(.88rem + var(--site-font-increase)); }
   .board-head { display: flex; flex-wrap: wrap; align-items: start; justify-content: space-between; gap: .56rem; }
-  .badge { display: inline-block; background: var(--active); font-weight: 700; border-radius: .44rem; font-size: calc(.83rem + var(--site-font-increase)); padding: .2rem .46rem; font-variant-numeric: tabular-nums; }
+  .badge { display: inline-block; color: var(--accent); background: var(--active); font-weight: 700; border-radius: .44rem; font-size: calc(.83rem + var(--site-font-increase)); padding: .2rem .46rem; font-variant-numeric: tabular-nums; }
   .architecture { display: flex; flex-wrap: wrap; gap: .45rem; margin: .9rem 0 .72rem; }
   .architecture button { background: var(--surface); font-size: calc(.88rem + var(--site-font-increase)); }
-  .graph { display: block; width: 100%; height: auto; aspect-ratio: 550 / 252; border: 1px solid var(--line); border-radius: .68rem; background: var(--surface); }
-  .graph .guide { stroke: #aaa; fill: none; stroke-width: 1; stroke-dasharray: 3 6; }
+  .graph { display: block; width: 100%; height: auto; aspect-ratio: 550 / 252; border: 1px solid var(--line); border-radius: .68rem; background: linear-gradient(135deg, #f7f8ff, var(--surface)); }
+  .graph .guide { stroke: #7b8a98; fill: none; stroke-width: 1; stroke-dasharray: 3 6; }
   .graph .edge { fill: none; stroke-width: 2; }
-  .graph .edge-positive { stroke: var(--text); }
-  .graph .edge-negative { stroke: var(--text); stroke-dasharray: 8 4; }
-  .graph .edge-zero { stroke: var(--text); stroke-dasharray: 2 4; }
-  .graph .edge-text { fill: var(--text); text-anchor: middle; font: 600 calc(14px + var(--site-font-increase)) ui-monospace, monospace; paint-order: stroke; stroke: var(--surface); stroke-width: 5px; stroke-linejoin: round; }
-  .graph .node { fill: var(--page); stroke: #666; stroke-width: 1.7; }
-  .graph .node-active { stroke: var(--text); stroke-width: 2.6; }
+  .graph .edge-positive { stroke: var(--positive); }
+  .graph .edge-negative { stroke: var(--negative); stroke-dasharray: 8 4; }
+  .graph .edge-zero { stroke: var(--zero); stroke-dasharray: 2 4; }
+  .graph .edge-text { fill: var(--text); text-anchor: middle; font-size: calc(14px + var(--site-font-increase)); font-weight: 700; paint-order: stroke; stroke: var(--surface); stroke-width: 5px; stroke-linejoin: round; }
+  .graph .node { fill: var(--node-fill, #ebf7fc); stroke: var(--node-border, #5c839a); stroke-width: 1.7; }
+  .graph [data-graph-neuron] { --node-fill: #efedfd; --node-border: #7464a3; }
+  .graph [data-graph-neuron="y"] { --node-fill: #dff3ed; --node-border: #4e867c; }
+  .graph .node-active { stroke: var(--accent); stroke-width: 2.6; }
   .graph .node-select { cursor: pointer; }
   .graph .node-select:hover .node { fill: var(--active); }
   .graph .node-name { fill: var(--text); text-anchor: middle; font-size: calc(14px + var(--site-font-increase)); }
-  .graph .node-value { fill: var(--text); text-anchor: middle; font: 700 calc(20px + var(--site-font-increase)) ui-monospace, monospace; }
+  .graph .node-value { fill: var(--text); text-anchor: middle; font-size: calc(20px + var(--site-font-increase)); font-weight: 700; font-variant-numeric: tabular-nums; }
   .graph .column-name { fill: var(--text); text-anchor: middle; font-size: calc(15px + var(--site-font-increase)); }
-  .graph-note { font-size: calc(.82rem + var(--site-font-increase)); }
+  .graph-note { color: var(--muted); font-size: calc(.82rem + var(--site-font-increase)); }
   .neurons { display: flex; flex-wrap: wrap; align-items: center; gap: .42rem; margin: .7rem 0 .8rem; }
   .neurons button { min-width: 44px; min-height: 39px; padding: .36rem .55rem; }
-  .neurons button[aria-pressed="true"] { border-color: var(--text); background: var(--active); font-weight: 700; }
+  .neurons button[aria-pressed="true"] { border-color: var(--accent); background: var(--active); color: var(--accent); font-weight: 700; }
   .control-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: .7rem; }
   .control-label { display: grid; gap: .28rem; min-width: 0; }
   .control-label span { font-size: calc(.87rem + var(--site-font-increase)); }
   select { min-height: 42px; width: 100%; padding-inline: .42rem; }
-  input[type="range"] { width: 100%; min-width: 0; accent-color: var(--text); cursor: pointer; }
-  input[type="checkbox"] { margin: 0; width: 18px; height: 18px; accent-color: var(--text); }
+  input[type="range"] { width: 100%; min-width: 0; accent-color: var(--accent); cursor: pointer; }
+  input[type="checkbox"] { margin: 0; width: 18px; height: 18px; accent-color: var(--accent); }
   .slider-line { display: grid; grid-template-columns: minmax(0, 1fr) 2.25rem; align-items: center; gap: .42rem; min-height: 37px; }
-  .slider-value { text-align: end; font: 700 calc(.91rem + var(--site-font-increase)) ui-monospace, monospace; }
+  .slider-value { text-align: end; font-size: calc(.91rem + var(--site-font-increase)); font-weight: 700; font-variant-numeric: tabular-nums; }
   fieldset { padding: 0; border: 0; margin: .77rem 0 0; min-width: 0; }
   legend { padding: 0; color: var(--text); font-size: calc(.88rem + var(--site-font-increase)); font-weight: 700; }
   .edge-row { display: grid; grid-template-columns: 5.7rem minmax(0, 1fr); gap: .55rem; align-items: center; min-height: 46px; border-bottom: 1px solid var(--line); }
   .edge-switch { display: inline-flex; align-items: center; gap: .42rem; min-height: 44px; font-size: calc(.86rem + var(--site-font-increase)); cursor: pointer; }
   .edge-row input:disabled { opacity: .38; cursor: default; }
   .equation { min-height: 5.3em; padding: .6rem .65rem; background: var(--surface); border: 1px solid var(--line); border-radius: .55rem; margin-top: .78rem; font-size: calc(.86rem + var(--site-font-increase)); }
-  .equation code { display: block; margin-top: .14rem; overflow-wrap: anywhere; font-family: ui-monospace, Consolas, monospace; }
+  .equation code { display: block; margin-top: .14rem; overflow-wrap: anywhere; font-family: inherit; font-variant-numeric: tabular-nums; }
   .lower { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); gap: 1rem; margin-top: 1rem; align-items: start; }
   .samples { width: 100%; margin-top: .62rem; border-collapse: collapse; text-align: end; font-variant-numeric: tabular-nums; }
   .samples th, .samples td { border-bottom: 1px solid var(--line); padding: .38rem .34rem; }
   .samples th { font-size: calc(.84rem + var(--site-font-increase)); font-weight: 700; }
   .samples th:first-child, .samples td:first-child { text-align: start; }
   .sample-button { padding: .15rem .4rem; min-height: 35px; border-radius: .38rem; font-size: calc(.88rem + var(--site-font-increase)); }
-  .sample-button[aria-pressed="true"] { background: var(--active); border-color: var(--text); font-weight: 700; }
+  .sample-button[aria-pressed="true"] { background: var(--active); border-color: var(--accent); font-weight: 700; }
   .samples tr.chosen { background: var(--surface); }
   .correct, .incorrect { font-weight: 700; }
+  .correct { color: var(--success); }
+  .incorrect { color: var(--warning); }
   .actions { display: flex; flex-wrap: wrap; gap: .44rem; margin-top: .8rem; }
-  .primary { background: var(--active); border-color: var(--text); font-weight: 700; }
-  .primary:not(:disabled):hover { background: #ddd; }
-  .feedback { min-height: 2.5em; }
-  .hint { margin-top: .7rem; padding: .54rem .64rem; border-inline-start: 3px solid var(--text); background: var(--surface); font-size: calc(.91rem + var(--site-font-increase)); }
+  .primary { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 700; }
+  .primary:not(:disabled):hover { background: var(--accent-hover); }
+  .feedback { min-height: 2.5em; padding: .54rem .64rem; border-radius: .45rem; background: var(--surface); }
+  .feedback.correct { background: var(--success-soft); }
+  .feedback.incorrect { background: var(--warning-soft); }
+  .hint { margin-top: .7rem; padding: .54rem .64rem; border-inline-start: 3px solid var(--accent); background: var(--active); font-size: calc(.91rem + var(--site-font-increase)); }
   .hint:empty, [hidden] { display: none !important; }
   .footer { margin-block: 1.6rem 0; padding-block: 1.06rem 1.7rem; border-top: 1px solid var(--line); display: flex; flex-wrap: wrap; justify-content: space-between; gap: .4rem 1.2rem; font-size: calc(.82rem + var(--site-font-increase)); }
   @media (max-width: 730px) {
@@ -112,6 +133,7 @@
   }
   @media (max-width: 540px) {
     .graph { aspect-ratio: 330 / 252; }
+    .game-nav { flex-direction: column; align-items: flex-end; }
   }
   @media (max-width: 365px) {
     .lab-number { font-size: calc(.75rem + var(--site-font-increase)); }
@@ -121,8 +143,6 @@
     .mark { width: 31px; height: 31px; }
     .back { font-size: calc(.77rem + var(--site-font-increase)); }
   }
-  .game-nav { display: flex; align-items: center; justify-content: flex-end; flex-wrap: wrap; gap: .35rem .75rem; }
-  .game-nav .language { min-height: 36px; width: auto; padding: .2rem .52rem; font-size: calc(.82rem + var(--site-font-increase)); cursor: pointer; }
 </style>
 </head>
 <body>
@@ -157,7 +177,7 @@
         <button type="button" id="remove-node"><span data-en="Remove selected neuron">删除选中神经元</span></button>
       </div>
       <svg id="graph" class="graph" viewBox="0 0 550 252" aria-hidden="true"></svg>
-      <p class="graph-note"><span data-en="Node values are outputs for the selected sample. Solid black lines show positive weights, dashed black lines show negative weights, dotted black lines show zero weights, and gray dashes show disconnected inputs.">节点上的数字是所选样本的输出。黑色实线表示正权重，黑色虚线表示负权重，黑色点线表示零权重，灰色虚线表示未接通。</span></p>
+      <p class="graph-note"><span data-en="Node values are outputs for the selected sample. Solid teal lines show positive weights, dashed rose lines show negative weights, dotted slate-blue lines show zero weights, and thin gray dashes show disconnected inputs.">节点上的数字是所选样本的输出。青绿实线表示正权重，玫红虚线表示负权重，蓝灰点线表示零权重，灰色细虚线表示未接通。</span></p>
     </section>
     <section class="card" aria-labelledby="inspector-title">
       <h2 id="inspector-title"><span data-en="Configure a neuron">调校神经元</span></h2>
@@ -188,7 +208,7 @@
 </main>
 <footer class="wrap footer">
   <span><span data-en="Neural Network Lab">神经网络搭建实验室</span></span>
-  <span><span data-en="Last updated">最后更新</span> <time datetime="2026-11-17">2026-11-17</time></span>
+  <span><span data-en="Last updated">最后更新</span> <time datetime="2026-11-19">2026-11-19</time></span>
 </footer>
 <script src="./locale.js"></script>
 <script>
