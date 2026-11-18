@@ -26,6 +26,9 @@
   button:disabled, button[aria-disabled="true"] { opacity: .47; cursor: default; }
   :focus-visible { outline: 2px solid currentColor; outline-offset: 3px; }
   .wrap { width: min(1150px, calc(100% - 3rem)); margin-inline: auto; }
+  @media (min-width: 1024px) {
+    .wrap { width: calc(min(1150px, 100% - 3rem) - 2cm); }
+  }
   .top { border-bottom: 1px solid var(--line); }
   .top-inner { min-height: 68px; display: flex; gap: .75rem; align-items: center; justify-content: space-between; }
   .brand { display: inline-flex; gap: .68rem; align-items: center; font-size: calc(.92rem + var(--site-font-increase)); font-weight: 700; }
